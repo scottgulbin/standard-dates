@@ -1,4 +1,4 @@
-import re
+import re, os
 
 def monthToNumber(month):
     month = month[0:3].lower()
@@ -29,30 +29,33 @@ def monthToNumber(month):
     else:
         return '00'
 
+fileOfDates = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname('dates.txt')))
+listOfDates = open(fileOfDates+'\dates.txt')
+dates = listOfDates.read()
 
 #Extract date YYYY-MM-DD
 dateRegex1 = re.compile(r'''(
     (\d{4})
-    (\s|-|\.|\/)
+    (-|\.|\/)
     (\d{2})
-    (\s|-|\.|\/)
+    (-|\.|\/)
     (\d{2})
 )''', re.VERBOSE)
 match = []
-mo = dateRegex1.findall('2019.01.02 2019/01/22 2019-22-33')
+mo = dateRegex1.findall(dates)
 for group in mo:
     oneDate = '/'.join([group[3],group[5],group[1]])
     match.append(oneDate)
 
 #Extract date MM-DD-YYYY
 dateRegex2 = re.compile(r'''(
-    (\d{1,2})?
-    (\s|-|\.|\/)
-    (\d{1,2})?
-    (\s|-|\.|\/)
+    (\d{1,2})
+    (-|\.|\/)
+    (\d{1,2})
+    (-|\.|\/)
     (\d{4})
 )''', re.VERBOSE)
-groups = (dateRegex2.findall('01/22/2019 02.04.2019 05-99-0321 1.2.2019, 03.2.2019 3.09.2019'))
+groups = (dateRegex2.findall(dates))
 for group in groups:
     item1 = group[1]
     item2 = group[3]
@@ -74,7 +77,7 @@ dataRegex3 = re.compile('''
     (\s{0,2})?
     (\d{4})
 ''', re.VERBOSE)
-items = dataRegex3.findall('The date is December 4th, 2019 I am unsure why this is not working December 2, 2019 it should be fine February 29, 2019 why does march work March 3rd, 2019 but not this one? August 25, 2019 December 31st 2012, Sept 4 2012')
+items = dataRegex3.findall(dates)
 
 for item in items:
     month = monthToNumber(item[0])
@@ -84,6 +87,12 @@ for item in items:
     oneDate = '/'.join([month,day,item[5]])
     match.append(oneDate)
 
+output = ''
+for line in match:
+    output += f'{line}\n'
+print(output)
 
-for item in match:
-    print(item)
+outputFile = open('output.txt', 'w')
+outputFile.write(output)
+outputFile.close
+
